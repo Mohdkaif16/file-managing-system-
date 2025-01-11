@@ -1,17 +1,13 @@
 import os
 import shutil
 import hashlib
-
-# Function to calculate the hash of a file
-def calculate_file_hash(file_path):
+def calculate_file_hash(file_path): # Function to calculate the hash of a file
     hasher = hashlib.md5()
     with open(file_path, 'rb') as f:
         for chunk in iter(lambda: f.read(4096), b""):
             hasher.update(chunk)
     return hasher.hexdigest()
-
-# Function to rename a file if there's a conflict
-def handle_name_conflict(dest_folder, file):
+def handle_name_conflict(dest_folder, file):# Function to rename a file if there's a conflict
     base_name, ext = os.path.splitext(file)
     counter = 1
     new_name = file
@@ -19,9 +15,7 @@ def handle_name_conflict(dest_folder, file):
         new_name = f"{base_name}_{counter}{ext}"
         counter += 1
     return new_name
-
-# Function to organize files based on extensions
-def organize_files(folder_path):
+def organize_files(folder_path):# Function to organize files based on extensions
     extensions = {
         'Image': ['jpg', 'jpeg', 'png', 'gif'],
         'pdfs': ['pdf'],
@@ -34,18 +28,14 @@ def organize_files(folder_path):
         'Video': ['mp4', 'avi', 'mkv'],
         'Other': []
     }
-
     seen_hashes = {}  # Dictionary to track file hashes
     duplicates_folder = os.path.join(folder_path, "Duplicates")
     os.makedirs(duplicates_folder, exist_ok=True)
-
     for file in os.listdir(folder_path):
         file_path = os.path.join(folder_path, file)
         if os.path.isfile(file_path):
-            # Calculate hash to check for duplicates
-            file_hash = calculate_file_hash(file_path)
-            if file_hash in seen_hashes:
-                # If duplicate, move to Duplicates folder
+            file_hash = calculate_file_hash(file_path) # Calculate hash to check for duplicates
+            if file_hash in seen_hashes:# If duplicate, move to Duplicates folder
                 duplicate_path = os.path.join(duplicates_folder, file)
                 try:
                     shutil.move(file_path, duplicate_path)
@@ -57,7 +47,6 @@ def organize_files(folder_path):
                 continue
             else:
                 seen_hashes[file_hash] = file_path
-
             # Categorize the file
             ext = file.split('.')[-1].lower()
             category = 'Other'  # Default category
@@ -65,14 +54,11 @@ def organize_files(folder_path):
                 if ext in ext_list:
                     category = key
                     break
-
             # Create folder named after the file type
             dest_folder = os.path.join(folder_path, category)
             os.makedirs(dest_folder, exist_ok=True)
-
             # Handle file name conflict
             new_file_name = handle_name_conflict(dest_folder, file)
-
             # Move the file and handle errors
             try:
                 shutil.move(file_path, os.path.join(dest_folder, new_file_name))
@@ -81,7 +67,6 @@ def organize_files(folder_path):
                 print(f"Permission error while moving file: {file}")
             except Exception as e:
                 print(f"Error moving file {file} to {dest_folder}: {e}")
-
 # Function to search for files by name or extension
 def search_files(folder_path, query):
     results = []
@@ -90,7 +75,6 @@ def search_files(folder_path, query):
             if query.lower() in file.lower():
                 results.append(os.path.join(root, file))
     return results
-
 # Main function
 def main():
     print("Welcome to the File Management System")
@@ -123,6 +107,5 @@ def main():
             break
         else:
             print("Invalid choice. Please try again.")
-
 if __name__ == "__main__":
     main()
